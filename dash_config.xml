@@ -1,0 +1,31 @@
+<confifg>
+	<datasources>
+		<datasource>
+			<type>SQLITE</type>
+			<name>test</name>
+			<host>pyclinote.db</host>
+			<driver></driver>
+			<port></port>
+			<user></user>
+			<password></password>
+			<service></service>
+			<sid></sid>
+		</datasource>
+	</datasources>
+	<queries>
+		<query name = "S_ALL" ds="test">'SELECT * FROM NOTE'</query>
+		<query name = "S_CONF" ds="test">'SELECT * FROM CONFIG'</query>
+		<query name = "S_BY_ID" ds="test" params="1">'SELECT * FROM NOTES WHERE ID = ?'</query>
+	</queries>
+	
+	<users>
+		<user>
+			<username>developer</username>
+			<password>developer11</password>
+		</user>
+		<user>
+			<username>admin</username>
+			<password>admin11</password>
+		</user>
+	</users>
+</confifg>
