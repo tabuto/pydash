@@ -1,5 +1,10 @@
 {% extends "layout.html" %}
+
 {% block body %}
+<script type="text/javascript">
+window.setTimeout(function(){ document.location.reload(true); }, 3000);
+</script>
+
   {% if session.logged_in %}
 	<form action="{{ url_for('exec_query') }}" method=post class=add-entry>
 	<dl>
