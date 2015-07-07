@@ -9,17 +9,28 @@
 		  <option value={{ q }}>{{ q }}</option>
 		{% endfor %}
 		</select>
-		<dd><input type=submit value=Execute>
+		<br>
+		<dt><input type=submit value=Execute>
 	</dl>
 	</form>
-
-  <ul class=entries>
-	  {% if entries %}
+	
+<table style="width:100%">
+  <tr>
+	{%for n in colNum %}
+    <th>{{ colNames[n] }}</th>
+     {% endfor %}
+  </tr>
+   {% if entries %}
 		  {% for entry in entries %}
-			<li><h2>{{ entry[0] }}</h2>{{ entry[1] }}
-		  {% endfor %}
-	   {% endif %}
-
+		<tr>
+			{%for n in colNum %} 
+			<td>{{ entry[n] }}</td>
+			{% endfor %}
+		</tr>
+		 {% endfor %}
+	</table>
 	{% endif %}
-  </ul>
+
+{% endif %}
+
 {% endblock %}

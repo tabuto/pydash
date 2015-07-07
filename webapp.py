@@ -11,6 +11,10 @@ app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
 pyDash = PyDash('dash_config.xml')
 
+@app.before_request
+def before_request():
+	pass
+
 '''
 show the main dashboard
 '''
@@ -21,7 +25,7 @@ def show_dashboard():
 		print "not logged in: redirecto to login"
 		return redirect(url_for('login'))
 	global pyDash
-	queries = pyDash.getQueries()
+	queries = pyDash.getQueriesName()
 	return render_template('show_dashboard.html', queries=queries)
 
 @app.route("/exec",methods=['GET', 'POST'])
@@ -29,13 +33,19 @@ def exec_query():
 	if 'logged_in' not in session:
 		print "not logged in: redirecto to login"
 		return redirect(url_for('login'))
+	loggedUser = session['logged_in']
+	
 	print "call exec_query"
 	query = request.form['query_sel']
 	print "query to execute: ",query
 	global pyDash
-	entries = pyDash.executeQuery(query)
-	queries = pyDash.getQueries()
-	return render_template('show_dashboard.html', entries=entries,queries=queries)
+	user = pyDash.validateUser(loggedUser['username'],loggedUser['password'])
+	toExecute = pyDash.getQueryByName(query)
+	entries,colNames = pyDash.executeQuery(query,user)
+	queries = pyDash.getQueriesName()
+	colNum= toExecute.selectNumber;
+	print "Col to show: ",colNum
+	return render_template('show_dashboard.html', entries=entries,queries=queries, colNum=range(colNum), colNames=colNames)
 	    
 
 '''
@@ -48,11 +58,12 @@ def login():
 	if request.method == 'POST':
 		username = request.form['username']
 		password = request.form['password']
-		if not pyDash.validateUser(username,password):
+		loggedUser = pyDash.validateUser(username,password)
+		if not loggedUser:
 			error = 'Invalid login'
 		else:
 			print "Valid login: ",username
-			session['logged_in'] = username
+			session['logged_in'] = loggedUser.serialize()
 			#flash('You were logged in')
 			print "redirect to show_dashboard"
 			return redirect(url_for('show_dashboard'))

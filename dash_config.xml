@@ -13,15 +13,18 @@
 		</datasource>
 	</datasources>
 	<queries>
-		<query name = "S_ALL" ds="test">'SELECT * FROM NOTE'</query>
-		<query name = "S_CONF" ds="test">'SELECT * FROM CONFIG'</query>
-		<query name = "S_BY_ID" ds="test" params="1">'SELECT * FROM NOTES WHERE ID = ?'</query>
+		<query name = "S_ALL" ds="test" selects="3">'SELECT * FROM NOTE ORDER BY PRIORITY DESC'</query>
+		<query name = "S_CONF" ds="test" selects="2">'SELECT * FROM CONFIG'</query>
+		<query name = "S_BY_ID" ds="test" params="1" selects="3">'SELECT * FROM NOTES WHERE ID = ?'</query>
 	</queries>
 	
 	<users>
 		<user>
 			<username>developer</username>
 			<password>developer11</password>
+			<datasourcelist>
+				<ds>test</ds>
+			</datasourcelist>
 		</user>
 		<user>
 			<username>admin</username>
