@@ -1,6 +1,22 @@
 from bs4 import BeautifulSoup as Soup
 import sqlite3 as lite
 
+class Param:
+	def __init__(self, pos =0,name="",paramType="",combovalues=[]):
+		self.position = pos
+		self.name = name
+		self.paramType=paramType
+		self.combovalues=combovalues
+	def serialize(self):
+		return {
+			'position': self.position, 
+			'name': self.name,
+			'paramType': self.paramType,
+			'combovalues':self.combovalues
+			}
+	def __str__(self):
+		return str(self.position)+") "+str(self.name)+" ("+str(self.paramType)+") "+" values: "+str(self.combovalues)
+
 
 class User:
 	def __init__(self, username="",password="", datasources=()):
@@ -30,6 +46,17 @@ class Query:
 		self.parnum = parnum
 		self.name = name
 		self.selectNumber=selectNumber
+		
+		
+	def serialize(self):
+		return {
+			'query': self.query, 
+			'parmap': self.parmap,
+			'target': self.target,
+			'parnum': self.parnum,
+			'name': self.name,
+			'selectNumber': self.selectNumber
+			}
 	def __str__(self):
 		return str(self.name)+" ("+str(self.target)+") "+str(self.query)
 
@@ -39,6 +66,7 @@ class PyDash:
 		self.db_conn_dict = {}
 		self.queries_dict = {}
 		self.users_dict = {}
+		self.chartboards = [];
 		
 		handler = open(conf_file).read()
 		soup = Soup(handler)
@@ -65,19 +93,35 @@ class PyDash:
 		queries = soup.find('queries')
 		for q in queries.findAll('query'):
 			#add Query to queries dict
-			query_ =  q.string
+			query_ =  q.find('sql').string
+			
+			params=()
 			name_ = q.attrs['name']
 			target_ = q.attrs['ds']
-			params = q.attrs['params'] if 'params' in q.attrs else None
+			paramNum = q.attrs['params'] if 'params' in q.attrs else None
 			select_number = int(q.attrs['selects']) if 'selects' in q.attrs else 1
 			
-			qry = Query(query = query_,parmap=(),target = target_,parnum=params,name = name_,selectNumber=select_number)
+			if paramNum:
+				k=1;
+				parameters = q.find('params')
+				for p in parameters.findAll('param'): 
+					_p_name=p.attrs['name']
+					_p_type=p.attrs['paramtype']
+					_combo_vals =p.attrs['vals'] if 'vals' in p.attrs else ''
+					toAdd=Param(k,_p_name,_p_type,_combo_vals.split(',') )
+					params=params+(toAdd,)
+					k=k+1
+					print toAdd,'from xml: ',_combo_vals
+			
+			qry = Query(query = query_,parmap=params,target = target_,parnum=paramNum,name = name_,selectNumber=select_number)
+			 
 			self.queries_dict[name_] = qry
 		'''
 		load users from xml file
 		'''
 		users = soup.find('users')
 		for u in users.findAll('user'):
+			
 			username = u.find("username").string
 			pswd = u.find("password").string
 			dslist = ();
@@ -88,6 +132,23 @@ class PyDash:
 
 			user = User(username,pswd,dslist)
 			self.users_dict[username] = user
+		'''
+		load chartboards from xml file
+		'''
+		chartsb=soup.find('chartboards')
+		
+		for c in chartsb.findAll('chartboard'):
+			toadd={}
+			_user = c.find("user").string
+			_type=c.find("type").string
+			_querydata=c.find("querydata").string
+			_title = c.find("title").string
+			toadd['user']=_user
+			toadd['type']=_type
+			toadd['querydata']=_querydata
+			toadd['title']=_title
+			self.chartboards.append(toadd)
+			
 
 	def getSQLiteConn(self,ds):
 		return lite.connect(ds['host'])
@@ -106,11 +167,13 @@ class PyDash:
 	def getQueryByName(self, name):
 		return self.queries_dict.get(name)
 	
+	
+	
 	'''
 	Esegue la query dato il nome della query nel datasource 
 	configurato nel file di configurazione
 	'''
-	def executeQuery(self,queryname, user=None):
+	def executeQuery(self,queryname,values=None, user=None):
 		q = self.queries_dict[queryname]
 		if user and self.validateUser(user.getUsername(),user.getPassword()):
 			if q.target not in self.users_dict[user.getUsername()].getDatasources():
@@ -124,8 +187,13 @@ class PyDash:
 		
 		cur = con.cursor()
 		normalized_query = q.query[1: len(q.query)-1 ] 
-		print "executed query: "+ normalized_query
-		cur.execute(normalized_query)
+		
+		if values and q.parnum>0:
+			#print 'execute parameter query'
+			cur.execute(normalized_query,values)
+		else:
+			#print 'execute NON parameter query'
+			cur.execute(normalized_query)
 		rows = cur.fetchall()
 		names = [description[0] for description in cur.description]
 		return rows,names
@@ -135,4 +203,30 @@ class PyDash:
 			return self.users_dict[username]
 		else:
 			return None 
+	
+	def getChartBoard(self,user):
+		result = []
+		for chart in self.chartboards:
+			toAdd={}
+			if  user['username'] == chart['user']:
+				toAdd['type']=	chart['type']
+				row,cols = self.executeQuery(chart['querydata'])
+				toAdd['labels']=cols
+				toAdd['data']=row[0]
+				toAdd['title']=chart['title']
+				result.append(toAdd)
+		return result
+				
+		'''
+		chartboards = [];
+		chart1 = {'type':'LINE','labels':['Before','After'],'data':[25,60],'title':'Example1' }
+		chartboards.append(chart1)
+		chart2 = {'type':'LINE','labels':['Before','After'],'data':[40,10],'title':'Example2' }
+		chartboards.append(chart2)
+		chart3 = {'type':'LINE','labels':['Jen','feb','mar','apr'],'data':[40,10,23,34],'title':'Example3' }
+		chartboards.append(chart3)
+		return chartboards
+		'''
+		
+		
 

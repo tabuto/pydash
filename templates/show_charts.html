@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+  <h2>Charts</h2>
+ 
+  <script>
+	$(document).ready(function() {
+    var Chartjs = Chart.noConflict();
+    var colname,dataset;
+    $.getJSON('/exec_chart', function(data) {
+		
+		for (d=0; d<data.charts.length;d++){
+			charttype = data.charts[d].type
+			var label = $("<label>").text(data.charts[d].title).attr('for','chart'+d);
+			var newCanvas = $('<canvas/>',{'width':400,'height':400,'class':'radHuh','id':'chart'+d});
+			label.append(newCanvas);
+			$('.page').append(label);
+			
+			 var chartData = {
+			labels : data.charts[d].labels,
+			datasets : [
+			{
+				fillColor : "rgba(172,194,132,0.4)",
+				strokeColor : "#ACC26D",
+				pointColor : "#fff",
+				pointStrokeColor : "#9DB86D",
+				data : data.charts[d].data
+			}
+						]
+								}
+		var ctx = $("#chart"+d).get(0).getContext("2d");
+		if (charttype=='LINE'){
+			new Chartjs(ctx).Line(chartData);
+		}else if ( charttype=='BAR') {
+			new Chartjs(ctx).Bar(chartData);
+			}
+	}
+	   
+	   //colname=data.labels
+	   //dataset=data.data
+       //buyerData = data.result;
+       /*
+       var buyerData = {
+		labels : colname,
+		datasets : [
+			{
+				fillColor : "rgba(172,194,132,0.4)",
+				strokeColor : "#ACC26D",
+				pointColor : "#fff",
+				pointStrokeColor : "#9DB86D",
+				data : dataset
+			}
+		]
+	}
+       	var ctx = $("#myChart").get(0).getContext("2d");
+		new Chartjs(ctx).Line(buyerData);
+        */
+      });
+   
+	
+	
+
+	//var ctx = document.getElementById("myChart").getContext("2d");
+
+});
+  
+  </script>
+  
+  {% endif %}
+
+{% endblock %}
