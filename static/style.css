@@ -11,7 +11,7 @@ h3              { font-size: 0.9em; }
 
 label           {font-family: 'Helvetica', serif; font-size: 1.2em;color: #377BA8;}
 .page           { margin: 2em auto; width: 65em; border: 5px solid #ccc;
-                  padding: 0.8em; background: white; }
+                  padding: 0.8em; padding-bottom: 5em; background: white; }
 .entries        { list-style: none; margin: 0; padding: 0; }
 .entries li     { margin: 0.8em 1.2em; }
 .entries li h2  { margin-left: -1em; }
@@ -21,13 +21,15 @@ label           {font-family: 'Helvetica', serif; font-size: 1.2em;color: #377BA
                   margin-bottom: 1em; background: #fafafa; color: #377BA8;}
 .nav        { text-align: left; font-size: 1em; padding: 0.3em;
                   margin-bottom: 1em; background: #fafafa; color: #377BA8;}
-.login          { text-align: left;   width: 360px; text-align: left; margin-left: auto; margin-right: auto; }
+.login          { text-align: left;   width: 360px; text-align: left; margin-left: auto; margin-right: auto; padding-top: 1em;}
                   
 .login  dt      { color: #377BA8;}
 .flash          { background: #CEE5F5; padding: 0.5em;
                   border: 1px solid #AACBE2; }
 .error          { background: #F0D6D6; padding: 0.5em; }
 
+.footer        { text-align: center; margin: 2em auto; width: 65em; border: 5px solid #ccc;
+                  padding: 0.8em; padding-bottom: 1em; background: white;color: #377BA8;}
 .empty{
    padding: .4em .5em;
    empty-cells:show;
@@ -92,12 +94,12 @@ label           {font-family: 'Helvetica', serif; font-size: 1.2em;color: #377BA
 .submit-button {
    border: 1px solid #377BA8;
    background: #377BA8;
-   background: -webkit-gradient(linear, left top, left bottom, from(#DDE9F0), to(#377BA8));
-   background: -webkit-linear-gradient(top, #DDE9F0, #377BA8);
-   background: -moz-linear-gradient(top, #DDE9F0, #377BA8);
-   background: -ms-linear-gradient(top, #DDE9F0, #377BA8);
-   background: -o-linear-gradient(top, #DDE9F0, #377BA8);
-   background-image: -ms-linear-gradient(top, #DDE9F0 0%, #377BA8 100%);
+   background: -webkit-gradient(linear, left top, left bottom, from(#CEE5F5), to(#377BA8));
+   background: -webkit-linear-gradient(top, #CEE5F5, #377BA8);
+   background: -moz-linear-gradient(top, #CEE5F5, #377BA8);
+   background: -ms-linear-gradient(top, #CEE5F5, #377BA8);
+   background: -o-linear-gradient(top, #CEE5F5, #377BA8);
+   background-image: -ms-linear-gradient(top, #CEE5F5 0%, #377BA8 100%);
    -webkit-border-radius: 4px;
    -moz-border-radius: 4px;
    border-radius: 4px;
@@ -140,7 +142,7 @@ label           {font-family: 'Helvetica', serif; font-size: 1.2em;color: #377BA
 .CSSTableGenerator {
 	margin:0px;padding:0px;
 	width:100%;
-	box-shadow: 10px 10px 5px #888888;
+	box-shadow: 10px 10px 5px #FFFFFF;
 	border:1px solid #ffffff;
 	
 	-moz-border-radius-bottomleft:0px;

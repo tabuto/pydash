@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup as Soup
 import sqlite3 as lite
+import MySQLdb as mdb
 
 class Param:
 	def __init__(self, pos =0,name="",paramType="",combovalues=[]):
@@ -39,13 +40,14 @@ class User:
 		return str(self.username)+" ("+str(self.datasources)+") "
 
 class Query: 
-	def __init__(self, query="", parmap=(),target="",parnum=0,name = "", selectNumber=1):
+	def __init__(self, query="", parmap=(),target="",parnum=0,name = "", selectNumber=1, description=""):
 		self.query = query
 		self.parmap = parmap
 		self.target = target
 		self.parnum = parnum
 		self.name = name
 		self.selectNumber=selectNumber
+		self.description=description
 		
 		
 	def serialize(self):
@@ -99,6 +101,7 @@ class PyDash:
 			name_ = q.attrs['name']
 			target_ = q.attrs['ds']
 			paramNum = q.attrs['params'] if 'params' in q.attrs else None
+			_desc = q.attrs['description'] if 'description' in q.attrs else ""
 			select_number = int(q.attrs['selects']) if 'selects' in q.attrs else 1
 			
 			if paramNum:
@@ -111,9 +114,9 @@ class PyDash:
 					toAdd=Param(k,_p_name,_p_type,_combo_vals.split(',') )
 					params=params+(toAdd,)
 					k=k+1
-					print toAdd,'from xml: ',_combo_vals
+					#print toAdd,'from xml: ',_combo_vals
 			
-			qry = Query(query = query_,parmap=params,target = target_,parnum=paramNum,name = name_,selectNumber=select_number)
+			qry = Query(query = query_,parmap=params,target = target_,parnum=paramNum,name = name_,selectNumber=select_number,description=_desc)
 			 
 			self.queries_dict[name_] = qry
 		'''
@@ -152,6 +155,8 @@ class PyDash:
 
 	def getSQLiteConn(self,ds):
 		return lite.connect(ds['host'])
+	def getMySQLConn(self,ds):
+		return mdb.connect(ds['host'],ds['user'],ds['password'],ds['service'],int(ds['port']));
 		
 
 	'''
@@ -184,15 +189,17 @@ class PyDash:
 		con = None
 		if ds['type'] == 'SQLITE':
 			con = self.getSQLiteConn(ds)
+		elif ds['type'] == 'MYSQL':
+			con = self.getMySQLConn(ds)
 		
 		cur = con.cursor()
 		normalized_query = q.query[1: len(q.query)-1 ] 
 		
 		if values and q.parnum>0:
-			#print 'execute parameter query'
+			print 'execute parameter query'
 			cur.execute(normalized_query,values)
 		else:
-			#print 'execute NON parameter query'
+			print 'execute NON parameter query'
 			cur.execute(normalized_query)
 		rows = cur.fetchall()
 		names = [description[0] for description in cur.description]

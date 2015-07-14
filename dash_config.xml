@@ -26,24 +26,35 @@
 			<service></service>
 			<sid></sid>
 		</datasource>
+		<datasource>
+			<type>MYSQL</type>
+			<name>chinook_mysql</name>
+			<host>localhost</host>
+			<driver></driver>
+			<port>3306</port>
+			<user>test</user>
+			<password>test11</password>
+			<service>Chinook</service>
+			<sid></sid>
+		</datasource>
 	</datasources>
 	<queries>
-		<query name = "S_ALL" ds="test" selects="3">
+		<query name = "S_ALL" ds="test" selects="3" description="Note" >
 			<sql>'SELECT * FROM NOTE ORDER BY PRIORITY DESC'</sql>
 		</query>
-		<query name = "S_CONF" ds="test" selects="2">
+		<query name = "S_CONF" ds="test" selects="2" description="Configurazione">
 			<sql>'SELECT * FROM CONFIG'</sql>
 		</query>
-		<query name = "S_BY_ID" ds="test" params="1" selects="3">
+		<query name = "S_BY_ID" ds="test" params="1" selects="3" description="Nota by ID">
 			<sql>'SELECT * FROM NOTE WHERE ID = ?'</sql>
 			<params>
 					<param paramtype="INT" name="id"></param>
 			</params>
 		</query>
-		<query name = "GENRE_COUNT" ds="chinook" selects="2">
+		<query name = "GENRE_COUNT" ds="chinook" selects="2" description="Tracce per Genere">
 			<sql>'select MAX(CASE WHEN ID = 1 THEN tracks END) AS Rock, MAX(CASE WHEN ID=3 THEN tracks END) AS Metal, MAX(CASE WHEN ID = 13 THEN tracks END) AS HeavyMetal from ( select genre.genreID ID, count(0) tracks from track join album on track.albumId = album.albumId join artist on artist.artistId = album.artistId join genre on track.genreID = genre.genreID group by genre.genreID order by tracks desc )'</sql>
 		</query>
-		<query name = "INVOICES" ds="chinook" params="3" selects="9">
+		<query name = "INVOICES" ds="chinook" params="3" selects="9" description="Fatture Ricerca">
 			<sql>'select * from invoice where invoiceId=? or (BillingCountry=? and invoiceDate > ? )'</sql>
 		<params>
 			<param paramtype="INT" name="invoiceId"></param>
@@ -51,7 +62,9 @@
 			<param paramtype="DATE" name="invoiceDate"></param>
 		</params>
 		</query>
-		
+		<query name = "S_ARTIST" ds="chinook_mysql" selects="1" description="Artisti">
+			<sql>'select CONVERT(BINARY NAME USING utf8) as ArtistName from Artist order by name limit 1,10'</sql>
+		</query>
 	</queries>
 	
 	<users>
@@ -61,6 +74,7 @@
 			<datasourcelist>
 				<ds>test</ds>
 				<ds>chinook</ds>
+				<ds>chinook_mysql</ds>
 			</datasourcelist>
 		</user>
 		<user>

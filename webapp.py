@@ -8,6 +8,7 @@ SECRET_KEY = 'jfsjrgyugfuybv3848483854hhjfdhjfdsjh'
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
+#app.run(host= '10.5.62.79')
 
 pyDash = PyDash('dash_config.xml')
 
@@ -65,9 +66,9 @@ def exec_query():
 		return redirect(url_for('login'))
 	loggedUser = session['logged_in']
 	
-	print "call exec_query"
+	#print "call exec_query"
 	query = request.form['query_sel']
-	print "query to execute: ",query
+	#print "query to execute: ",query
 	global pyDash 
 	user = pyDash.validateUser(loggedUser['username'],loggedUser['password'])
 	toExecute = pyDash.getQueryByName(query)
@@ -78,12 +79,12 @@ def exec_query():
 		for p in toExecute.parmap:
 			toAdd=request.form[p.name]
 			values=values+(toAdd,)
-		print 'par vals: ',filter(None,values)
+		#print 'par vals: ',filter(None,values)
 	entries,colNames = pyDash.executeQuery(query,values,user)
 	
 	queries = pyDash.getQueries()
 	colNum= toExecute.selectNumber;
-	print "Col to show: ",colNum
+	#print "Col to show: ",colNum
 	return render_template('show_dashboard.html', entries=entries,queries=queries, colNum=range(colNum), colNames=colNames, params=toExecute.parmap)
 	    
 
@@ -104,7 +105,7 @@ def login():
 			print "Valid login: ",username
 			session['logged_in'] = loggedUser.serialize()
 			#flash('You were logged in')
-			print "redirect to show_dashboard"
+			#print "redirect to show_dashboard"
 			return redirect(url_for('show_dashboard'))
 	return render_template('login.html', error=error)
 

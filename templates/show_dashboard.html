@@ -12,7 +12,7 @@
 	
 	$(document).ready(function() {
 		
-		$('body').on('focus',".date-form-field", function(){$(this).datepicker();});
+		$('body').on('focus',".date-form-field", function(){$(this).datepicker({ dateFormat: 'yy-mm-dd' });});
 		//$('.add-entry').on('click','.date-form-field', function() {$(this).datepicker();}); 
 		
 		current=$('#q_select').val()
@@ -33,7 +33,7 @@
 		<div class="form-title">Select query:</div>
 		<dd></dd><select class="form-field" name=query_sel id="q_select">
 		{% for q in queries %}
-		  <option value={{ q.name }}>{{ q.name }}</option>
+		  <option value={{ q.name }}>{{ q.description }}</option>
 		{% endfor %}
 		</select>
 		<div class="empty"></div>
@@ -78,7 +78,7 @@
 		  {% for entry in entries %}
 		<tr>
 			{%for n in colNum %} 
-			<td>{{ entry[n] }}</td>
+			<td>{{  entry[n] }}</td>
 			{% endfor %}
 		</tr>
 		 {% endfor %}
