@@ -90,7 +90,7 @@ class PyDash:
 		self.appName=""
 		
 		handler = open(conf_file).read()
-		soup = Soup(handler)
+		soup = Soup(handler,'xml')
 
 		'''
 		load env variable  from config file
