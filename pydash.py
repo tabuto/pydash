@@ -1,6 +1,24 @@
 from bs4 import BeautifulSoup as Soup
-import sqlite3 as lite
-import MySQLdb as mdb
+from bs4 import CData
+import os
+import re
+
+try:
+	import sqlite3 as lite
+except ImportError:
+	print "Sqlite3 required to execute Sqlite queries"
+
+
+try:
+	import MySQLdb as mdb
+except ImportError:
+	print "MySQLdb required to execute MySQL queries"
+
+try:
+	import cx_Oracle
+except ImportError:
+	print "cxOracle required to execute oracle queries"
+	
 
 class Param:
 	def __init__(self, pos =0,name="",paramType="",combovalues=[]):
@@ -69,10 +87,22 @@ class PyDash:
 		self.queries_dict = {}
 		self.users_dict = {}
 		self.chartboards = [];
+		self.appName=""
 		
 		handler = open(conf_file).read()
 		soup = Soup(handler)
 
+		'''
+		load env variable  from config file
+		'''
+		env = soup.find('env')
+		
+		orahome = env.find('ora_home').string
+		ldlibpath = env.find('ld_library_path').string
+		self.appName= env.find('appName').string
+
+		os.putenv('ORACLE_HOME', orahome)
+		os.putenv('LD_LIBRARY_PATH',ldlibpath)
 		dss = soup.find('datasources')
 		'''
 		load datasources from config file
@@ -117,7 +147,7 @@ class PyDash:
 					#print toAdd,'from xml: ',_combo_vals
 			
 			qry = Query(query = query_,parmap=params,target = target_,parnum=paramNum,name = name_,selectNumber=select_number,description=_desc)
-			 
+			#print qry
 			self.queries_dict[name_] = qry
 		'''
 		load users from xml file
@@ -146,10 +176,12 @@ class PyDash:
 			_type=c.find("type").string
 			_querydata=c.find("querydata").string
 			_title = c.find("title").string
+			
 			toadd['user']=_user
 			toadd['type']=_type
 			toadd['querydata']=_querydata
 			toadd['title']=_title
+			toadd['inverted']=True if 'inverted' in c.attrs else False
 			self.chartboards.append(toadd)
 			
 
@@ -157,7 +189,10 @@ class PyDash:
 		return lite.connect(ds['host'])
 	def getMySQLConn(self,ds):
 		return mdb.connect(ds['host'],ds['user'],ds['password'],ds['service'],int(ds['port']));
-		
+	def getOracleConn(self, ds):
+		conn = ds['user']+'/'+ds['password']+'@'+ds['host']+':'+ds['port']+'/'+ds['service']
+		#print conn
+		return cx_Oracle.connect(conn)
 
 	'''
 	Restituisce l'elenco dei nomi delle query presenti
@@ -191,15 +226,17 @@ class PyDash:
 			con = self.getSQLiteConn(ds)
 		elif ds['type'] == 'MYSQL':
 			con = self.getMySQLConn(ds)
+		elif ds['type'] == 'ORACLE':
+			con = self.getOracleConn(ds)
 		
 		cur = con.cursor()
 		normalized_query = q.query[1: len(q.query)-1 ] 
 		
 		if values and q.parnum>0:
-			print 'execute parameter query'
+			#print 'execute parameter query'
 			cur.execute(normalized_query,values)
 		else:
-			print 'execute NON parameter query'
+			#print 'execute NON parameter query'
 			cur.execute(normalized_query)
 		rows = cur.fetchall()
 		names = [description[0] for description in cur.description]
@@ -218,10 +255,23 @@ class PyDash:
 			if  user['username'] == chart['user']:
 				toAdd['type']=	chart['type']
 				row,cols = self.executeQuery(chart['querydata'])
-				toAdd['labels']=cols
-				toAdd['data']=row[0]
+				print chart['title'],chart['inverted']
+				if chart['inverted']:
+					print 'invert query data...'
+					lbl = ();
+					dt=();
+					for r in row:
+						lbl=lbl+(r[0],)
+						dt=dt+(r[1],)
+					toAdd['labels']=lbl
+					toAdd['data']=dt	
+				else:
+					print 'NOT INVERT query data...'
+					toAdd['labels']=cols
+					toAdd['data']=row[0]
 				toAdd['title']=chart['title']
 				result.append(toAdd)
+		print result
 		return result
 				
 		'''

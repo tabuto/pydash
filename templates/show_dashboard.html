@@ -32,6 +32,7 @@
 	<dl>
 		<div class="form-title">Select query:</div>
 		<dd></dd><select class="form-field" name=query_sel id="q_select">
+			<option value="-1">Choose one</option>
 		{% for q in queries %}
 		  <option value={{ q.name }}>{{ q.description }}</option>
 		{% endfor %}
@@ -67,7 +68,7 @@
 		<dt><input  class="submit-button" type=submit value=Execute>
 	</dl>
 	</form>
-	
+	<h2>{{ title }}</h2>
 <table class="CSSTableGenerator">
   <tr>
 	{%for n in colNum %}

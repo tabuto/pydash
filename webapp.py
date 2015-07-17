@@ -8,13 +8,19 @@ SECRET_KEY = 'jfsjrgyugfuybv3848483854hhjfdhjfdsjh'
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
-#app.run(host= '10.5.62.79')
+
 
 pyDash = PyDash('dash_config.xml')
 
 @app.before_request
 def before_request():
-	pass
+	global pyDash
+	print 'before request: ', pyDash.appName
+	if 'app_name' not in session:
+		session['app_name'] = pyDash.appName
+	else:
+		print 'AppName: ',session['app_name']
+	#pass
 	#if 'logged_in' not in session:
 	#	print "not logged in: redirecto to login"
 	#	#return redirect(url_for('login'))
@@ -53,6 +59,7 @@ def exec_chart():
 	global pyDash
 	charts = pyDash.getChartBoard(loggedUser)
 	result = {}
+		
 	#result['labels']=["January","February","March","April","May","June"]
 	#result['data'] = [203,256,299,351,405,547]
 	result['charts']=charts
@@ -61,6 +68,7 @@ def exec_chart():
 
 @app.route("/exec",methods=['GET', 'POST'])
 def exec_query():
+	global pyDash 
 	if 'logged_in' not in session:
 		print "not logged in: redirecto to login"
 		return redirect(url_for('login'))
@@ -68,8 +76,12 @@ def exec_query():
 	
 	#print "call exec_query"
 	query = request.form['query_sel']
+	queries = pyDash.getQueries()
+	if query == "-1":
+		flash('Select query please...')
+		return render_template('show_dashboard.html', queries=queries)
 	#print "query to execute: ",query
-	global pyDash 
+	
 	user = pyDash.validateUser(loggedUser['username'],loggedUser['password'])
 	toExecute = pyDash.getQueryByName(query)
 	parnum = toExecute.parnum
@@ -82,10 +94,10 @@ def exec_query():
 		#print 'par vals: ',filter(None,values)
 	entries,colNames = pyDash.executeQuery(query,values,user)
 	
-	queries = pyDash.getQueries()
+	
 	colNum= toExecute.selectNumber;
 	#print "Col to show: ",colNum
-	return render_template('show_dashboard.html', entries=entries,queries=queries, colNum=range(colNum), colNames=colNames, params=toExecute.parmap)
+	return render_template('show_dashboard.html', entries=entries,queries=queries, colNum=range(colNum), colNames=colNames, params=toExecute.parmap, title=toExecute.description)
 	    
 
 '''
@@ -103,6 +115,7 @@ def login():
 			error = 'Invalid login'
 		else:
 			print "Valid login: ",username
+			pyDash=PyDash('dash_config.xml')
 			session['logged_in'] = loggedUser.serialize()
 			#flash('You were logged in')
 			#print "redirect to show_dashboard"
@@ -112,8 +125,9 @@ def login():
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
+    session.pop('app_name', None)
     flash('You were logged out')
     return redirect(url_for('show_dashboard'))
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host= '0.0.0.0')

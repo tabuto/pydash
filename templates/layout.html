@@ -1,5 +1,5 @@
 <!doctype html>
-<title>PyDash</title>
+<title>{{ session.app_name }}</title>
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='jquery-ui.css') }}">
 <script type=text/javascript src="{{url_for('static', filename='charts.js') }}"></script>
@@ -15,8 +15,8 @@
     <a href="{{ url_for('logout') }} ">log out</a>  {{ session.logged_in['username'] }}
   {% endif %}
   </div>
-  <h1>PyDash</h1>
-  <h3>A simple application Dashboard</h3>
+  <h1>{{ session.app_name }}</h1>
+  <h3>PyDash: A simple application Dashboard</h3>
   {% if session.logged_in %}
   <div class=nav>
 		  <a href="{{ url_for('show_dashboard') }}">Dashboard</a>
