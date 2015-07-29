@@ -43,7 +43,7 @@
 			<div id='pardiv_{{ q.name }}' style="display:None" class="metadata">
 			{% for p in q.parmap %}
 					<dd>
-					<div class="form-title">{{ p.name }}</div>
+					<div class="form-title">{{ p.description }}</div>
 					</dd>
 					{% if p.paramType == 'DATE' %}
 					<input class="date-form-field" type=text name={{ p.name }}  onclick="datepick()" >

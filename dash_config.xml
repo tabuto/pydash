@@ -53,13 +53,13 @@
 				where invoiceId=? 
 				or (BillingCountry=? and invoiceDate > ? )'</sql>
 		<params>
-			<param paramtype="INT" name="invoiceId"></param>
-			<param paramtype="COMBO" name="Country" vals="Italy,USA,Germany"></param>
-			<param paramtype="DATE" name="invoiceDate"></param>
+			<param paramtype="INT" name="invoiceId" description="invoice id"></param>
+			<param paramtype="COMBO" name="Country" vals="Italy,USA,Germany" description="Countries"></param>
+			<param paramtype="DATE" name="invoiceDate" description="Invoice Date"></param>
 		</params>
 		</query>
 		<query name = "S_ARTIST" ds="chinook" selects="2" description="Artists">
-			<sql>'select * from Artist order by name'></sql>
+			<sql>'select * from Artist order by name'</sql>
 		</query>
 	</queries>
 	

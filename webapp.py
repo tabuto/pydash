@@ -15,11 +15,11 @@ pyDash = PyDash('dash_config.xml')
 @app.before_request
 def before_request():
 	global pyDash
-	print 'before request: ', pyDash.appName
+	#print 'before request: ', pyDash.appName
 	if 'app_name' not in session:
 		session['app_name'] = pyDash.appName
-	else:
-		print 'AppName: ',session['app_name']
+	#else:
+	#	print 'AppName: ',session['app_name']
 	#pass
 	#if 'logged_in' not in session:
 	#	print "not logged in: redirecto to login"

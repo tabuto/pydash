@@ -21,17 +21,19 @@ except ImportError:
 	
 
 class Param:
-	def __init__(self, pos =0,name="",paramType="",combovalues=[]):
+	def __init__(self, pos =0,name="",paramType="",combovalues=[],description=""):
 		self.position = pos
 		self.name = name
 		self.paramType=paramType
 		self.combovalues=combovalues
+		self.description=description
 	def serialize(self):
 		return {
 			'position': self.position, 
 			'name': self.name,
 			'paramType': self.paramType,
-			'combovalues':self.combovalues
+			'combovalues':self.combovalues,
+			'description':self.description,
 			}
 	def __str__(self):
 		return str(self.position)+") "+str(self.name)+" ("+str(self.paramType)+") "+" values: "+str(self.combovalues)
@@ -140,8 +142,9 @@ class PyDash:
 				for p in parameters.findAll('param'): 
 					_p_name=p.attrs['name']
 					_p_type=p.attrs['paramtype']
+					_p_desc=p.attrs['description']
 					_combo_vals =p.attrs['vals'] if 'vals' in p.attrs else ''
-					toAdd=Param(k,_p_name,_p_type,_combo_vals.split(',') )
+					toAdd=Param(k,_p_name,_p_type,_combo_vals.split(','),_p_desc )
 					params=params+(toAdd,)
 					k=k+1
 					#print toAdd,'from xml: ',_combo_vals
@@ -238,6 +241,8 @@ class PyDash:
 		else:
 			#print 'execute NON parameter query'
 			cur.execute(normalized_query)
+		#print normalized_query
+		#print values
 		rows = cur.fetchall()
 		names = [description[0] for description in cur.description]
 		return rows,names
@@ -255,9 +260,9 @@ class PyDash:
 			if  user['username'] == chart['user']:
 				toAdd['type']=	chart['type']
 				row,cols = self.executeQuery(chart['querydata'])
-				print chart['title'],chart['inverted']
+				#print chart['title'],chart['inverted']
 				if chart['inverted']:
-					print 'invert query data...'
+					#print 'invert query data...'
 					lbl = ();
 					dt=();
 					for r in row:
@@ -266,12 +271,12 @@ class PyDash:
 					toAdd['labels']=lbl
 					toAdd['data']=dt	
 				else:
-					print 'NOT INVERT query data...'
+					#print 'NOT INVERT query data...'
 					toAdd['labels']=cols
 					toAdd['data']=row[0]
 				toAdd['title']=chart['title']
 				result.append(toAdd)
-		print result
+		#print result
 		return result
 				
 		'''

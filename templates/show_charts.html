@@ -11,10 +11,18 @@
 		
 		for (d=0; d<data.charts.length;d++){
 			charttype = data.charts[d].type
+			var divmain = $("<div>").addClass('mainChart');
+			var divleft = $("<div>").addClass('l-chart');
+			var divright = $("<div>").addClass('r-chart');
+			
 			var label = $("<label>").text(data.charts[d].title).attr('for','chart'+d);
-			var newCanvas = $('<canvas/>',{'width':400,'height':400,'class':'radHuh','id':'chart'+d});
-			label.append(newCanvas);
-			$('.page').append(label);
+			var newCanvas = $('<canvas/>',{'width':750,'height':400,'class':'radHuh','id':'chart'+d});
+			
+			divright.append(newCanvas);
+			divleft.append(label)
+			divmain.append(divleft);
+			divmain.append(divright);
+			$('.page').append(divmain);
 			
 			 var chartData = {
 			labels : data.charts[d].labels,
